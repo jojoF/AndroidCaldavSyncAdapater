@@ -76,6 +76,7 @@ public class AuthenticatorActivity extends Activity {
 	// Values for email and password at the time of the login attempt.
 	private String mUser;
 	private String mPassword;
+	private String mTrustAll;
 
 	// UI references.
 	private EditText mUserView;
@@ -163,6 +164,7 @@ public class AuthenticatorActivity extends Activity {
 		mUser = mUserView.getText().toString();
 		mPassword = mPasswordView.getText().toString();
 		mURL = mURLView.getText().toString();
+		mTrustAll = "false";
 
 		boolean cancel = false;
 		View focusView = null;
@@ -264,7 +266,7 @@ public class AuthenticatorActivity extends Activity {
 			TestConnectionResult result = null;
 			
 			try {
-				CaldavFacade facade = new CaldavFacade(mUser, mPassword, mURL);
+				CaldavFacade facade = new CaldavFacade(mUser, mPassword, mURL, mTrustAll);
 				result = facade.testConnection();
 				Log.i(TAG, "testConnection status="+result);
 			} catch (HttpHostConnectException e) {
@@ -303,6 +305,7 @@ public class AuthenticatorActivity extends Activity {
 				final Account account = new Account(mUser, "org.gege.caldavsyncadapter.account");			
 				mAccountManager.addAccountExplicitly(account, mPassword, null);
 				mAccountManager.setUserData(account, Constants.USER_DATA_URL_KEY, mURL);
+				mAccountManager.setUserData(account, Constants.USER_DATA_TRUST_ALL_KEY, mTrustAll);
 			
 				return LoginResult.Success_Calendar;
 

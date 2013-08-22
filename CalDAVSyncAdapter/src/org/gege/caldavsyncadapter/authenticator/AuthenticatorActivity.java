@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.Locale;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -44,12 +45,15 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -84,6 +88,7 @@ public class AuthenticatorActivity extends Activity {
 	private View mLoginFormView;
 	private View mLoginStatusView;
 	private TextView mLoginStatusMessageView;
+	private CheckBox mTrustCheckBox;
 
 	private AccountManager mAccountManager;
 
@@ -124,6 +129,24 @@ public class AuthenticatorActivity extends Activity {
 
 		
 		mURLView = (EditText) findViewById(R.id.url);
+		// if the URL start with "https" show the option to disable SSL host verification
+		mURLView.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				String url = ((EditText) findViewById(R.id.url)).getText().toString();
+				int visible = url.toLowerCase(Locale.getDefault()).startsWith("https") ? View.VISIBLE : View.INVISIBLE;
+				((CheckBox) findViewById(R.id.trustall)).setVisibility(visible);
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {				
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {				
+			}
+		});
 		
 		mLoginFormView = findViewById(R.id.login_form);
 		mLoginStatusView = findViewById(R.id.login_status);
@@ -136,6 +159,8 @@ public class AuthenticatorActivity extends Activity {
 						attemptLogin();
 					}
 				});
+		
+		mTrustCheckBox = (CheckBox) findViewById(R.id.trustall);
 		
 		
 	}
@@ -164,7 +189,7 @@ public class AuthenticatorActivity extends Activity {
 		mUser = mUserView.getText().toString();
 		mPassword = mPasswordView.getText().toString();
 		mURL = mURLView.getText().toString();
-		mTrustAll = "false";
+		mTrustAll = (mTrustCheckBox.isChecked() ? "false" : "true");
 
 		boolean cancel = false;
 		View focusView = null;
